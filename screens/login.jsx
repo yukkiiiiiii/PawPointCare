@@ -5,19 +5,41 @@ import { StyleSheet,
         Image, 
         TouchableOpacity, 
         SafeAreaView, 
-        StatusBar} from "react-native";
+        StatusBar,
+        ActivityIndicator} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {LinearGradient} from 'expo-linear-gradient';
 import Logo from '../assets/img/ppcLogo.png';
 import { TextInput } from "react-native-gesture-handler";
 import { useNavigation } from '@react-navigation/native';
+import { FIREBASE_APP } from "../firebaseConfig";
+import { FIREBASE_AUTH } from "../firebaseConfig";
+import { signInWithEmailAndPassword} from "firebase/auth";
 
 const Login = () => {
-    const [text, setText] = React.useState('');
+    const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
     const navigation = useNavigation();
+    const [loading, setIsLoading] = React.useState(false);
+    const auth = FIREBASE_AUTH;
+
     console.log("NAV:", navigation);
+    const signIn = async () => {
+        setIsLoading(true);
+
+        try{
+            const response = await signInWithEmailAndPassword(auth, email, password);
+            navigation.navigate("Home");
+            console.log(response);
+        }catch(error)
+        {
+            console.log(error);
+        }finally
+        {
+            setIsLoading(false);
+        }
+    }
     return (
 
    <SafeAreaView style={styles.container}>
@@ -32,21 +54,25 @@ const Login = () => {
                 <Text style={styles.Title}>Paw Point Care</Text>
                 <Text style={styles.subtitle}>Your pet's health companion</Text>
 
+                {/*EMAIL*/}
                 <Text style={styles.inputLabel}>Email</Text>
                 <TextInput style={styles.textInput} 
                             placeholder="Enter your email"
-                            onChangeText={newText => setText(newText)} 
-                            value={text}/>
+                            onChangeText={(text) => setEmail(text)} 
+                            value={email}/> 
                 
+                {/*PASSWORD*/}
                 <Text style={styles.inputLabel}>Password</Text>
                 <View style={styles.passwordContainer}>
                     <TextInput style={styles.textInput} 
                             placeholder="Enter your password"
-                            onChangeText={setPassword} 
+                            onChangeText={(text) => setPassword(text)} 
                             value={password}
                             secureTextEntry={!isPasswordVisible}
                             autoCapitalize="none"
                             autoCorrect={false}/>
+                
+                    {/*PASSWORD VISIBILITY TOGGLE*/}
                     <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)}
                             style={styles.iconPosition}>
                     <MaterialCommunityIcons 
@@ -56,14 +82,17 @@ const Login = () => {
                 </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity style={styles.loginBtn}
-                    activeOpacity={0.8}
-                    onPress={() => navigation.navigate("Home")}>
+                {/*//LOGIN BUTTON AND SIGNUP LINK*/}
+                {loading ? <ActivityIndicator size="large" color="#5ECDC5"/>
+                : <>
+                    <TouchableOpacity style={styles.loginBtn}
+                                    activeOpacity={0.8}
+                                    onPress={signIn}>
                     <Text style={styles.loginText}>Login</Text>
-                </TouchableOpacity>
-
+                    </TouchableOpacity>
+                </>} 
                 <Text style={styles.signUpReference}
-                    onPress={() => navigation.navigate("SignUp")}>
+                      onPress={() => navigation.navigate("SignUp")}>
                     Don't have an account? Sign up
                 </Text>
             </View>            

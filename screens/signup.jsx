@@ -5,20 +5,40 @@ import { StyleSheet,
         Image, 
         TouchableOpacity, 
         SafeAreaView, 
-        StatusBar} from "react-native";
+        StatusBar,
+        ActivityIndicator} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {LinearGradient} from 'expo-linear-gradient';
 import Logo from '../assets/img/ppcLogo.png';
 import { TextInput } from "react-native-gesture-handler";
 import { useNavigation } from '@react-navigation/native';
+import { FIREBASE_AUTH } from '../firebaseConfig';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 const SignUp = () =>{
-     const [emailText, setemailText] = React.useState('');
-     const [password, setPassword] = React.useState('');
-     const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
-     const [nameText, setnameText] = React.useState('');
-     const navigation = useNavigation();
-     console.log("NAV:", navigation);
+    const [email, setEmail] = React.useState('');
+    const [password, setPassword] = React.useState('');
+    const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
+    const [nameText, setnameText] = React.useState('');
+    const navigation = useNavigation();
+    const [loading, setIsLoading] = React.useState(false);
+    const auth = FIREBASE_AUTH;
+    console.log("NAV:", navigation);
+
+    const signUp = async () => {
+        setIsLoading(true);
+        try{
+            const response = await createUserWithEmailAndPassword(auth, email, password);
+            console.log(response);
+            window.alert("Check your email.");
+        }catch(error){
+            console.log(error);
+            alert("Sign up failed:" + error.message);
+        }finally{
+            setIsLoading(false);
+        }
+    }
+
     return(
          <SafeAreaView style={styles.container}>
               <StatusBar barStyle="light-content" />
@@ -31,28 +51,23 @@ const SignUp = () =>{
                         <Image source={Logo} style={styles.logo} />
                         <Text style={styles.Title}>Paw Point Care</Text>
                         <Text style={styles.subtitle}>Your pet's health companion</Text>
-
-                        <Text style={styles.inputLabel}>Full Name</Text>
-                        <TextInput style={styles.textInput} 
-                                    placeholder="Enter your name"
-                                    onChangeText={newText => setnameText(newText)} 
-                                    value={nameText}/>
-        
+                        {/* EMAIL */}
                         <Text style={styles.inputLabel}>Email</Text>
                         <TextInput style={styles.textInput} 
                                     placeholder="Enter your email"
-                                    onChangeText={newText => setemailText(newText)} 
-                                    value={emailText}/>
-                        
+                                    onChangeText={(text) => setEmail(text)} 
+                                    value={email}/>
+                        {/* PASSWORD */}
                         <Text style={styles.inputLabel}>Password</Text>
                         <View style={styles.passwordContainer}>
                             <TextInput style={styles.textInput} 
                                     placeholder="Enter your password"
-                                    onChangeText={setPassword} 
+                                    onChangeText={(text) => setPassword(text)} 
                                     value={password}
                                     secureTextEntry={!isPasswordVisible}
                                     autoCapitalize="none"
                                     autoCorrect={false}/>
+                            {/* PASSWORD VISIBILITY TOGGLE */}
                             <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)}
                                     style={styles.iconPosition}>
                             <MaterialCommunityIcons 
@@ -61,13 +76,17 @@ const SignUp = () =>{
                                     color="#ccc"/>
                         </TouchableOpacity>
                         </View>
-        
-                        <TouchableOpacity style={styles.signUpBtn}
-                            activeOpacity={0.8}
-                            onPress={() => navigation.navigate("Home")}>
+                        
+                        {/* SIGNUP BUTTON AND LOGIN LINK */}
+                        {loading ? <ActivityIndicator size="large" color="#5ECDC5"/>
+                        : <>
+                           <TouchableOpacity style={styles.signUpBtn}
+                                            activeOpacity={0.8}
+                                            onPress={signUp}>
                             <Text style={styles.signUpText}>Sign Up</Text>
-                        </TouchableOpacity>
-        
+                            </TouchableOpacity>
+                        </>}
+
                         <Text style={styles.logInReference}
                            activeOpacity={0.8} 
                            onPress={() => navigation.navigate("Login")}>
