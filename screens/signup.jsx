@@ -6,7 +6,9 @@ import { StyleSheet,
         TouchableOpacity, 
         SafeAreaView, 
         StatusBar,
-        ActivityIndicator} from "react-native";
+        ActivityIndicator,
+        Platform,
+        KeyboardAvoidingView} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {LinearGradient} from 'expo-linear-gradient';
 import Logo from '../assets/img/ppcLogo.png';
@@ -26,6 +28,20 @@ const SignUp = () =>{
     console.log("NAV:", navigation);
 
     const signUp = async () => {
+
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            if(!emailRegex.test(email)) 
+            {
+                alert("Please enter a valid email address.");
+                return;
+            }
+            if(password.length < 12) 
+             {
+                alert("Password must be at least 12 characters long.");
+                return;
+            }
+
         setIsLoading(true);
         try{
             const response = await createUserWithEmailAndPassword(auth, email, password);
@@ -51,6 +67,9 @@ const SignUp = () =>{
                         <Image source={Logo} style={styles.logo} />
                         <Text style={styles.Title}>Paw Point Care</Text>
                         <Text style={styles.subtitle}>Your pet's health companion</Text>
+
+                    <KeyboardAvoidingView behavior={Platform.OS === 'android' ? 'padding' : 'height'}
+                                      style={{ width: '100%', alignItems: 'center' }}>
                         {/* EMAIL */}
                         <Text style={styles.inputLabel}>Email</Text>
                         <TextInput style={styles.textInput} 
@@ -74,7 +93,7 @@ const SignUp = () =>{
                                     name={isPasswordVisible ? "eye-off" : "eye"} 
                                     size={24} 
                                     color="#ccc"/>
-                        </TouchableOpacity>
+                            </TouchableOpacity>
                         </View>
                         
                         {/* SIGNUP BUTTON AND LOGIN LINK */}
@@ -86,6 +105,9 @@ const SignUp = () =>{
                             <Text style={styles.signUpText}>Sign Up</Text>
                             </TouchableOpacity>
                         </>}
+                    </KeyboardAvoidingView>
+
+                        
 
                         <Text style={styles.logInReference}
                            activeOpacity={0.8} 

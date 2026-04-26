@@ -6,7 +6,9 @@ import { StyleSheet,
         TouchableOpacity, 
         SafeAreaView, 
         StatusBar,
-        ActivityIndicator} from "react-native";
+        ActivityIndicator,
+        KeyboardAvoidingView,
+        Platform} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {LinearGradient} from 'expo-linear-gradient';
 import Logo from '../assets/img/ppcLogo.png';
@@ -23,9 +25,36 @@ const Login = () => {
     const navigation = useNavigation();
     const [loading, setIsLoading] = React.useState(false);
     const auth = FIREBASE_AUTH;
+    const [cooldown, setCooldown] = React.useState(0);
+    const [isLocked, setIsLocked] = React.useState(false);
 
     console.log("NAV:", navigation);
+
+    React.useEffect(() => {
+        let timer;
+        if(cooldown > 0){
+            setIsLocked(true);
+            timer = setTimeout(()=>{
+                setCooldown(cooldown - 1);
+            }, 1000);
+        }else{
+            setIsLocked(false);
+            clearInterval(timer);
+        }
+
+        return() => clearInterval(timer);
+    }, [cooldown]);
+
+    
     const signIn = async () => {
+        
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            if(!emailRegex.test(email)) {
+                alert("Please enter a valid email address.");
+                return;
+            }
+
         setIsLoading(true);
 
         try{
@@ -34,7 +63,13 @@ const Login = () => {
             console.log(response);
         }catch(error)
         {
-            console.log(error);
+            if (error.code === 'auth/too-many-requests') {
+                alert("Too many failed login attempts. Please wait for 30 seconds before trying again.");
+                setCooldown(30);
+            }
+            else{
+                alert(`An error occurred. Please try again.`);
+            }
         }finally
         {
             setIsLoading(false);
@@ -54,43 +89,47 @@ const Login = () => {
                 <Text style={styles.Title}>Paw Point Care</Text>
                 <Text style={styles.subtitle}>Your pet's health companion</Text>
 
-                {/*EMAIL*/}
-                <Text style={styles.inputLabel}>Email</Text>
-                <TextInput style={styles.textInput} 
-                            placeholder="Enter your email"
-                            onChangeText={(text) => setEmail(text)} 
-                            value={email}/> 
-                
-                {/*PASSWORD*/}
-                <Text style={styles.inputLabel}>Password</Text>
-                <View style={styles.passwordContainer}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'android' ? 'padding' : 'height'}
+                                      style={{ width: '100%', alignItems: 'center' }}>
+                    {/*EMAIL*/}
+                    <Text style={styles.inputLabel}>Email</Text>
                     <TextInput style={styles.textInput} 
-                            placeholder="Enter your password"
-                            onChangeText={(text) => setPassword(text)} 
-                            value={password}
-                            secureTextEntry={!isPasswordVisible}
-                            autoCapitalize="none"
-                            autoCorrect={false}/>
-                
-                    {/*PASSWORD VISIBILITY TOGGLE*/}
-                    <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-                            style={styles.iconPosition}>
-                    <MaterialCommunityIcons 
-                            name={isPasswordVisible ? "eye-off" : "eye"} 
-                            size={24} 
-                            color="#ccc"/>
-                </TouchableOpacity>
-                </View>
+                                placeholder="Enter your email"
+                                onChangeText={(text) => setEmail(text)} 
+                                value={email}/> 
+                    
+                    {/*PASSWORD*/}
+                    <Text style={styles.inputLabel}>Password</Text>
+                    <View style={styles.passwordContainer}>
+                        <TextInput style={styles.textInput} 
+                                placeholder="Enter your password"
+                                onChangeText={(text) => setPassword(text)} 
+                                value={password}
+                                secureTextEntry={!isPasswordVisible}
+                                autoCapitalize="none"
+                                autoCorrect={false}/>
+                    
+                        {/*PASSWORD VISIBILITY TOGGLE*/}
+                        <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+                                style={styles.iconPosition}>
+                        <MaterialCommunityIcons 
+                                name={isPasswordVisible ? "eye-off" : "eye"} 
+                                size={24} 
+                                color="#ccc"/>
+                        </TouchableOpacity>
+                    </View>
 
-                {/*//LOGIN BUTTON AND SIGNUP LINK*/}
-                {loading ? <ActivityIndicator size="large" color="#5ECDC5"/>
-                : <>
-                    <TouchableOpacity style={styles.loginBtn}
-                                    activeOpacity={0.8}
-                                    onPress={signIn}>
-                    <Text style={styles.loginText}>Login</Text>
-                    </TouchableOpacity>
-                </>} 
+                    {/*//LOGIN BUTTON AND SIGNUP LINK*/}
+                    {loading ? <ActivityIndicator size="large" color="#5ECDC5"/>
+                    : <>
+                        <TouchableOpacity style={styles.loginBtn}
+                                        activeOpacity={0.8}
+                                        onPress={signIn}>
+                        <Text style={styles.loginText}>Login</Text>
+                        </TouchableOpacity>
+                    </>}
+                </KeyboardAvoidingView>
+                 
                 <Text style={styles.signUpReference}
                       onPress={() => navigation.navigate("SignUp")}>
                     Don't have an account? Sign up
@@ -170,6 +209,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         color: '#000',
         paddingRight: 50,
+
     },
 
     iconPosition: {

@@ -36,7 +36,7 @@ const Home = () =>{
                         <TouchableOpacity style={[styles.card, { backgroundColor: '#5ECDC5' }]}
                                           onPress={() => navigation.navigate('Vets')}>
                             <MaterialCommunityIcons name="map-marker-outline" size={32} color="white" />
-                            <Text style={styles.cardText}>Find Vets</Text>
+                            <Text style={styles.cardText}>Find Clinics</Text>
                         </TouchableOpacity>
                         
                         <TouchableOpacity style={[styles.card, {backgroundColor: '#FF8383' }]}
@@ -50,9 +50,9 @@ const Home = () =>{
                             <Text style={styles.cardText}>Pet QR Code</Text>    
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={[styles.card, {backgroundColor: '#9be2dd' }]}>
+                        <TouchableOpacity style={[styles.card, {backgroundColor: '#8B9D83' }]} onPress={() => navigation.navigate('RegPet')}>
                             <MaterialCommunityIcons name="paw-outline" size={32} color="white" />
-                            <Text style={styles.cardText}>My Pets</Text>    
+                            <Text style={styles.cardText}>Register Pets</Text>    
                         </TouchableOpacity>
                     </View>
                 </View>
