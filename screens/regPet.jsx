@@ -22,23 +22,29 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 }
 
 const RegPet = () => {
- const [isInfoOpen, setIsInfoOpen] = React.useState(false);
- const [isOwnerInfoOpen, setIsOwnerInfoOpen] = React.useState(false);
- const [isVaccinationOpen, setIsVaccinationOpen] = React.useState(false);
+  const [isInfoOpen, setIsInfoOpen] = React.useState(false);
+  const [isOwnerInfoOpen, setIsOwnerInfoOpen] = React.useState(false);
+  const [isVaccinationOpen, setIsVaccinationOpen] = React.useState(false);
 
-  const [date, setDate] = useState(new Date());
-  const [show, setShow] = useState(false);
+  const [dateGiven, setDateGiven] = useState(new Date());
+  const [showDateGiven, setShowDateGiven] = useState(false);
+
+  const [nextDueDate, setNextDueDate] = useState(new Date());
+  const [showNextDue, setShowNextDue] = useState(false);
  
- const DateInput = () =>{
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShow(Platform.OS === 'android');
-    setDate(currentDate);
-  }
- };
+ 
+  const onDateGivenChange = (event, selectedDate) => {
+    setShowDateGiven(Platform.OS === 'ios');
+    if (selectedDate) setDateGiven(selectedDate);
+  };
 
- const formatDate = (selectedDate) => {
-  // Make sure the name matches the parameter in the parentheses
+  const onNextDueChange = (event, selectedDate) => {
+    setShowNextDue(Platform.OS === 'ios');
+    if (selectedDate) setNextDueDate(selectedDate);
+  };
+
+
+ const formatDate = (selectedDate) => { 
   return `${selectedDate.getMonth() + 1}/${selectedDate.getDate()}/${selectedDate.getFullYear()}`;
 };
 
@@ -191,43 +197,60 @@ const toggleVaccination = () => {
           {isVaccinationOpen && (
             <View>
               <View style={styles.grid}>
-                <View style={styles.inputGroup}>
+                {/* Vaccination Type */}
+                <View style={[styles.inputGroup, { width: '100%' }]}>
                   <Text style={styles.label}>Vaccination type</Text>
-                  <TextInput style={styles.input} placeholder="e.g., John Doe" placeholderTextColor="#ccc" />
+                  <TextInput style={styles.input} placeholder="e.g., Anti-Rabies" placeholderTextColor="#ccc" />
                 </View>
+
+                {/* Date Given */}
                 <View style={styles.inputGroup}>
-                  <MaterialCommunityIcons name="calendar" size={20} color="#5ECDC5" style={{ marginBottom: 5 }} />
-                  <Text style={styles.label}>Date given</Text>
-                  <TouchableOpacity style={styles.input} 
-                          onPress={() => setShow(true)}
-                          activeOpacity={0.7}>
-                          <Text style={{ color: '#000' }}>{date.toLocaleDateString()}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                    <MaterialCommunityIcons name="calendar" size={18} color="#5ECDC5" style={{ marginRight: 6 }} />
+                    <Text style={[styles.label, { marginBottom: 0 }]}>Date given</Text>
+                  </View>
+                  
+                  <TouchableOpacity 
+                    style={styles.input} 
+                    onPress={() => setShowDateGiven(true)}
+                    activeOpacity={0.7}>
+                    <Text style={{ color: '#000' }}>{dateGiven.toLocaleDateString()}</Text>
                   </TouchableOpacity>
-                {show && (
-                      <DateTimePicker value={date}
-                                      mode="date"
-                                      display="default"
-                                      onChange={onChange}
-                                      maximumDate={new Date()}/>
-                )}
-                </View>
-                <View style={styles.inputGroup}>
-                  <MaterialCommunityIcons name="calendar" size={20} color="#5ECDC5" style={{ marginRight: 5 }} />
-                  <Text style={styles.label}>Next Due</Text>
-                  <TouchableOpacity style={styles.input} 
-                          onPress={() => setShow(true)}
-                          activeOpacity={0.7}>
-                          <Text style={{ color: '#000' }}>{date.toLocaleDateString()}</Text>
-                  </TouchableOpacity>
-                  {show && (
-                      <DateTimePicker value={date}
-                                      mode="date"
-                                      display="default"
-                                      onChange={onChange}
-                                      maximumDate={new Date()}/>
+
+                  {showDateGiven && (
+                    <DateTimePicker 
+                      value={dateGiven}
+                      mode="date"
+                      display="default"
+                      onChange={onDateGivenChange}
+                      maximumDate={new Date()} 
+                    />
                   )}
                 </View>
 
+                {/* Next Due */}
+                <View style={styles.inputGroup}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                    <MaterialCommunityIcons name="calendar" size={18} color="#5ECDC5" style={{ marginRight: 6 }} />
+                    <Text style={[styles.label, { marginBottom: 0 }]}>Next Due</Text>
+                  </View>
+
+                  <TouchableOpacity 
+                    style={styles.input} 
+                    onPress={() => setShowNextDue(true)}
+                    activeOpacity={0.7}>
+                    <Text style={{ color: '#000' }}>{nextDueDate.toLocaleDateString()}</Text>
+                  </TouchableOpacity>
+
+                  {showNextDue && (
+                    <DateTimePicker 
+                      value={nextDueDate}
+                      mode="date"
+                      display="default"
+                      onChange={onNextDueChange}
+                    />
+                  )}
+                </View>
               </View>
             </View>
           )}

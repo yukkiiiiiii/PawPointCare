@@ -16,7 +16,7 @@ import { TextInput } from "react-native-gesture-handler";
 import { useNavigation } from '@react-navigation/native';
 import { FIREBASE_APP } from "../firebaseConfig";
 import { FIREBASE_AUTH } from "../firebaseConfig";
-import { signInWithEmailAndPassword} from "firebase/auth";
+import { signInWithEmailAndPassword, sendEmailVerification} from "firebase/auth";
 
 const Login = () => {
     const [email, setEmail] = React.useState('');
@@ -56,11 +56,22 @@ const Login = () => {
             }
 
         setIsLoading(true);
-
+        {/*Verification*/}
         try{
             const response = await signInWithEmailAndPassword(auth, email, password);
+            const user = response.user;
+
+            if (user.emailVerified) {
+            // Success! Proceed to Home
+            console.log("Logged in as:", user.email);
             navigation.navigate("Home");
-            console.log(response);
+            } else {
+                await sendEmailVerification(user);
+                alert("Verification required. A link has been sent to your email. Please verify before logging in.");
+                
+                await auth.signOut(); 
+            }
+          
         }catch(error)
         {
             if (error.code === 'auth/too-many-requests') {
@@ -68,7 +79,7 @@ const Login = () => {
                 setCooldown(30);
             }
             else{
-                alert(`An error occurred. Please try again.`);
+               alert("Login failed: " + error.message);
             }
         }finally
         {
