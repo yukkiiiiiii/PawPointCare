@@ -10,6 +10,7 @@ import Vets from './screens/vets';
 import Book from './screens/book';
 import {User} from 'firebase/auth';
 import RegPet from './screens/regPet';
+import PetQrProf from './screens/petQrProf';
 
 const Stack = createStackNavigator();
 
@@ -24,6 +25,7 @@ export default function App() {
         <Stack.Screen name="Vets" component={Vets} />
         <Stack.Screen name="Book" component={Book} />
         <Stack.Screen name="RegPet" component={RegPet} />
+        <Stack.Screen name="PetQrProf" component={PetQrProf} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,14 +1,14 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { StyleSheet, 
-        Text, 
-        View, 
-        Image, 
-        TouchableOpacity, 
-        SafeAreaView, 
-        StatusBar,
-        ActivityIndicator,
-        KeyboardAvoidingView,
-        Platform} from "react-native";
+    Text, 
+    View, 
+    Image, 
+    TouchableOpacity, 
+    StatusBar,
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {LinearGradient} from 'expo-linear-gradient';
 import Logo from '../assets/img/ppcLogo.png';
@@ -16,7 +16,11 @@ import { TextInput } from "react-native-gesture-handler";
 import { useNavigation } from '@react-navigation/native';
 import { FIREBASE_APP } from "../firebaseConfig";
 import { FIREBASE_AUTH } from "../firebaseConfig";
-import { signInWithEmailAndPassword, sendEmailVerification} from "firebase/auth";
+import { signInWithEmailAndPassword, 
+    sendEmailVerification, 
+    getMultiFactorResolver, 
+    PhoneAuthProvider, 
+    PhoneMultiFactorGenerator} from "firebase/auth";
 
 const Login = () => {
     const [email, setEmail] = React.useState('');
@@ -45,7 +49,7 @@ const Login = () => {
         return() => clearInterval(timer);
     }, [cooldown]);
 
-    
+   
     const signIn = async () => {
         
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -61,35 +65,40 @@ const Login = () => {
             const response = await signInWithEmailAndPassword(auth, email, password);
             const user = response.user;
 
-            if (user.emailVerified) {
-            // Success! Proceed to Home
-            console.log("Logged in as:", user.email);
-            navigation.navigate("Home");
-            } else {
+            if (!user.emailVerified) {
                 await sendEmailVerification(user);
-                alert("Verification required. A link has been sent to your email. Please verify before logging in.");
-                
-                await auth.signOut(); 
-            }
+                alert("Please verify your email first.");
+                await auth.signOut();
+                return;
+            } 
+            
+            navigation.replace("Home");
           
         }catch(error)
         {
-            if (error.code === 'auth/too-many-requests') {
-                alert("Too many failed login attempts. Please wait for 30 seconds before trying again.");
-                setCooldown(30);
-            }
-            else{
-               alert("Login failed: " + error.message);
+            if (error.code === 'auth/multi-factor-auth-required') {
+                const resolver = getMultiFactorResolver(auth, error);
+                
+                // This is the correct way to pass the data
+                navigation.navigate("MFAVerify", { 
+                    resolver: resolver, 
+                    phoneHint: resolver.hints[0]?.phoneNumber || '' 
+                });
+            } else {
+                alert("Login failed: " + error.message);
             }
         }finally
         {
             setIsLoading(false);
         }
     }
+
     return (
 
    <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
+
+
       <LinearGradient
         colors={['#5ECDC5', '#3e5974']}
         style={styles.background}

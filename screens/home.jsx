@@ -1,23 +1,47 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { StyleSheet, 
         Text, 
         View, 
         Image, 
-        TouchableOpacity, 
-        SafeAreaView, 
-        StatusBar} from "react-native";
+        TouchableOpacity,  
+        StatusBar,
+        ActivityIndicator, FlatList} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {LinearGradient} from 'expo-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Logo from '../assets/img/ppcLogo.png';
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import { useNavigation } from '@react-navigation/native';
+import {collection, query, where, onSnapshot} from 'firebase/firestore';
+import {FIREBASE_DB, FIREBASE_AUTH} from '../firebaseConfig';
+
 
 const Home = () =>{
     const navigation = useNavigation();
+    const [pets, setPets] = useState([]);
+    const [loading, setLoading] = useState(true);
     console.log("NAV:", navigation);
+
+    useEffect(() => {
+        const user = FIREBASE_AUTH.currentUser;
+        if (!user) return;
+
+        const q = query(collection(FIREBASE_DB, 'pets'), where("adminId", "==", user.uid));
+
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const petList = [];
+            querySnapshot.forEach((doc) => {
+                petList.push({ id: doc.id, ...doc.data() });
+            });
+            setPets(petList);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
     return(
         <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="light-content" />
+            <StatusBar style="light-content" />
             <ScrollView contentContainerStyle={styles.scrollContent}
                         showsVerticalScrollIndicator={false}> 
                 <View style={styles.bgContainer}>
@@ -45,12 +69,14 @@ const Home = () =>{
                             <Text style={styles.cardText}>Book Appointment</Text>    
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={[styles.card, {backgroundColor: '#37c4ba' }]}>
+                        <TouchableOpacity style={[styles.card, {backgroundColor: '#37c4ba' }]} 
+                        onPress={() => navigation.navigate('PetQrProf')}>
                             <MaterialCommunityIcons name="qrcode-scan" size={32} color="white" />
-                            <Text style={styles.cardText}>Pet QR Code</Text>    
+                            <Text style={styles.cardText}>Pet QR Profile</Text>    
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={[styles.card, {backgroundColor: '#8B9D83' }]} onPress={() => navigation.navigate('RegPet')}>
+                        <TouchableOpacity style={[styles.card, {backgroundColor: '#8B9D83' }]} 
+                        onPress={() => navigation.navigate('RegPet')}>
                             <MaterialCommunityIcons name="paw-outline" size={32} color="white" />
                             <Text style={styles.cardText}>Register Pets</Text>    
                         </TouchableOpacity>
@@ -83,40 +109,40 @@ const Home = () =>{
                 </View>
 
                 <View style={styles.petContainer}>
-                    <Text style={styles.sectionTitle}>Pets</Text>
-                    <View style={styles.petCard}>
-                       <View style={styles.petInfoLeft}>
-                            <View style={[styles.circle, { backgroundColor: '#5ECDC5' }]}>
-                                <Text style={styles.avatarLetter}>M</Text>
+                    <Text style={styles.sectionTitle}>Your Pets</Text>
+                    
+                    {loading ? (
+                        <ActivityIndicator size="small" color="#5ECDC5" />
+                    ) : pets.length > 0 ? (
+                        pets.map((pet) => (
+                            <View key={pet.id} style={styles.petCard}>
+                                <View style={styles.petInfoLeft}>
+                                    {/* Dynamic Image from DB */}
+                                    <Image 
+                                        source={{ uri: pet.petImageUrl || 'https://placedog.net/500' }} 
+                                        style={styles.petImage} 
+                                    />
+
+                                    <View style={styles.petTextContainer}>
+                                        <Text style={styles.petName}>{pet.petName}</Text>
+                                        <Text style={styles.petDetail}>
+                                            {pet.breed} • {pet.age} {parseInt(pet.age) === 1 ? 'year' : 'years'} old
+                                        </Text>
+                                    </View>
+                                </View>
+
+                                {/* QR Icon Navigates to the QR Profile page */}
+                                <TouchableOpacity 
+                                    style={styles.petInfoRight}
+                                    onPress={() => navigation.navigate('PetQrProf')}
+                                >
+                                    <MaterialCommunityIcons name="qrcode-scan" size={28} color="#5ECDC5" />
+                                </TouchableOpacity>
                             </View>
-
-                            <View style={styles.petTextContainer}>
-                                <Text style={styles.petName}>Max</Text>
-                                <Text style={styles.petDetail}>Golden Retriever • 3 years</Text>
-                            </View>
-                       </View>
-
-                       <View style={styles.petInfoRight}>
-                            <MaterialCommunityIcons name="qrcode-scan" size={32} color="#5ECDC5" />
-                       </View>
-                    </View>
-
-                    <View style={styles.petCard}>
-                       <View style={styles.petInfoLeft}>
-                            <View style={[styles.circle, { backgroundColor: '#FF8383' }]}>
-                                <Text style={styles.avatarLetter}>L</Text>
-                            </View>
-
-                            <View style={styles.petTextContainer}>
-                                <Text style={styles.petName}>Luna</Text>
-                                <Text style={styles.petDetail}>Persian Cat • 2 years</Text>
-                            </View>
-                       </View>
-
-                       <View style={styles.petInfoRight}>
-                            <MaterialCommunityIcons name="qrcode-scan" size={32} color="#5ECDC5" />
-                       </View>
-                    </View>
+                        ))
+                    ) : (
+                        <Text style={styles.emptyText}>No pets registered yet.</Text>
+                    )}
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -202,6 +228,7 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         padding: 20,
     },
+    
     cardText: {
         color: '#fff',
         fontSize: 13,
@@ -237,6 +264,7 @@ const styles = StyleSheet.create({
     aptLeft: {
         flex: 1,
     },
+
     aptRight: {
         alignItems: 'flex-end', 
     },
@@ -247,18 +275,21 @@ const styles = StyleSheet.create({
         color: '#1F395F',
         fontFamily: 'montserrat-bold',
     },
+
     apptType: {
         fontSize: 14,
         color: '#8a8787',
         marginTop: 4,
         fontFamily: 'montserrat-regular',
     },
+
     dateText: {
         fontSize: 14,
         fontWeight: 'bold',
         color: '#5ECDC5',
         fontFamily: 'montserrat-bold',
     },
+
     timeText: {
         fontSize: 13,
         color: '#1F395F',
@@ -288,11 +319,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 12,
     },
+
     petInfoLeft: {
         flexDirection: 'row',
         alignItems: 'center',
         flex: 1,
     },
+
     circle: {
         width: 50,
         height: 50,
@@ -301,19 +334,23 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginRight: 15,
     },
+
     avatarLetter: {
         color: 'white',
         fontSize: 20,
         fontWeight: 'bold',
     },
+
     petTextContainer: {
          flex: 1,
     },
+
     petName: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#1F395F',
     },
+
     petDetail: {
         fontSize: 13,
         color: '#8a8787',
@@ -322,4 +359,24 @@ const styles = StyleSheet.create({
     petInfoRight: {
         paddingLeft: 10,
     },
+
+    petImage: {
+        width: 55,
+        height: 55,
+        borderRadius: 27.5,
+        marginRight: 15,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+    },
+
+    emptyText: {
+        textAlign: 'center',
+        color: '#64748B',
+        fontStyle: 'italic',
+        marginVertical: 10,
+    },
+
+    petInfoRight: {
+        padding: 5,
+    }
 });

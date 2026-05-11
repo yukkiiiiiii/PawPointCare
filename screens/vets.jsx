@@ -3,12 +3,12 @@ import {
   StyleSheet, 
   Text, 
   View, 
-  SafeAreaView, 
   ScrollView, 
   TouchableOpacity 
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Vets = () => {
   return (
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     color: '#8a8787', 
     fontSize: 13 },
 
-  ratingBadge: { 
+  ratingBadge: {  
     flexDirection: 'row', 
     alignItems: 'center', 
     backgroundColor: '#FFF9E6', 

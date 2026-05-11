@@ -5,11 +5,11 @@
     "slug": "Paw_PointCare",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/img/ppcLogo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": false,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/img/ppcLogo2.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

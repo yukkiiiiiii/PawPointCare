@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Details - Paw Point Care</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .card { background: white; width: 90%; max-width: 400px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; text-align: center; }
+        .banner { background: #3DB2A4; height: 100px; }
+        .profile-img { width: 120px; height: 120px; border-radius: 50%; border: 5px solid white; margin-top: -60px; background: #ddd; object-fit: cover; }
+        .info { padding: 20px; }
+        h1 { margin: 10px 0 5px; color: #333; }
+        p { color: #777; margin: 5px 0 20px; }
+        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; text-align: left; }
+        .label { font-weight: bold; color: #555; }
+        .value { color: #333; }
+    </style>
+</head>
+<body>
+
+    <div class="card" id="main-card" style="display: none;">
+        <div class="banner"></div>
+        <img id="pet-image" class="profile-img" src="">
+        <div class="info">
+            <h1 id="pet-name">Pet Name</h1>
+            <p id="pet-breed">Breed Type</p>
+            
+            <div class="detail-row"><span class="label">Owner:</span> <span id="owner-name" class="value">-</span></div>
+            <div class="detail-row"><span class="label">Age:</span> <span id="pet-age" class="value">-</span></div>
+            <div class="detail-row"><span class="label">Medical Status:</span> <span id="med-status" class="value">Healthy</span></div>
+            <div class="detail-row"><span class="label">Weight:</span> <span id="pet-weight" class="value">-</span></div>
+            <div class="detail-row"><span class="label">Vaccination:</span> <span id="pet-vac" class="value">-</span></div>
+            <div class="detail-row"><span class="label">Conditions:</span> <span id="pet-med" class="value">-</span></div>
+            <div class="detail-row"><span class="label">Address:</span> <span id="owner-address" class="value">-</span></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDS8sxoRr5jYkErRpbx2K05IFvLXmrSde0",
+            authDomain: "pawpointcare.firebaseapp.com",
+            projectId: "pawpointcare",
+            storageBucket: "pawpointcare.firebasestorage.app",
+            messagingSenderId: "872245822062",
+            appId: "1:872245822062:web:381b7b7e81c842249e5c7f",
+            measurementId: "G-R52ES4KLDV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const params = new URLSearchParams(window.location.search);
+        const petId = params.get('id');
+
+        if (petId) {
+            const petRef = doc(db, "pets", petId);
+            getDoc(petRef).then((snap) => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    document.getElementById('pet-name').innerText = data.petName || "Unknown";
+                    document.getElementById('pet-breed').innerText = data.breed || "Mixed";
+                    document.getElementById('owner-name').innerText = (data.owner?.name || data.ownerName || data.name || "No Owner Listed");
+                    document.getElementById('pet-age').innerText = data.age || "N/A";
+                    document.getElementById('pet-image').src = data.petImageUrl || 'https://via.placeholder.com/150';
+                    document.getElementById('pet-weight').innerText = data.weight || "N/A";
+                    document.getElementById('pet-vac').innerText = data.vaccination?.type || data.vaccinationStatus || "None";
+                    
+                    if (data.medicalHistory?.conditions) {
+                    document.getElementById('pet-med').innerText = data.medicalHistory.conditions.join(", ");
+                    } else {
+                        document.getElementById('pet-med').innerText = data.medicalCondition || "None";
+                    }
+                    
+                    document.getElementById('owner-address').innerText = (data.owner?.address || data.ownerAddress) || "Not provided";
+
+                    document.getElementById('main-card').style.display = 'block';
+                } else {
+                    document.body.innerHTML = "<h1>Pet Not Found</h1>";
+                }
+            }).catch(err => console.error(err));
+        } else {
+            document.body.innerHTML = "<h1>Invalid QR Code</h1>";
+        }
+    </script>
+</body>
+</html>

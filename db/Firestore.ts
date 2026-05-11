@@ -1,10 +1,7 @@
-
 import { initializeApp } from "firebase/app";
-import {getAuth} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import {getStorage} from "firebase/storage";
- 
-const firebaseConfig = {
+
+const configuration = {
   apiKey: "AIzaSyDS8sxoRr5jYkErRpbx2K05IFvLXmrSde0",
   authDomain: "pawpointcare.firebaseapp.com",
   projectId: "pawpointcare",
@@ -14,10 +11,8 @@ const firebaseConfig = {
   measurementId: "G-R52ES4KLDV"
 };
 
-// Initialize Firebase
-const FIREBASE_APP = initializeApp(firebaseConfig);
-const FIREBASE_AUTH = getAuth(FIREBASE_APP);
-const FIREBASE_DB = getFirestore(FIREBASE_APP);
-const FIREBASE_STORAGE = getStorage(FIREBASE_APP);
+const app = initializeApp(configuration);
 
-export {FIREBASE_APP, FIREBASE_DB, FIREBASE_AUTH, FIREBASE_STORAGE};
+const db = getFirestore(app);
+
+export default db;

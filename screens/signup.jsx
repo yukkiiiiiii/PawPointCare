@@ -4,18 +4,18 @@ import { StyleSheet,
         View, 
         Image, 
         TouchableOpacity, 
-        SafeAreaView, 
         StatusBar,
         ActivityIndicator,
         Platform,
         KeyboardAvoidingView} from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {LinearGradient} from 'expo-linear-gradient';
 import Logo from '../assets/img/ppcLogo.png';
 import { TextInput } from "react-native-gesture-handler";
 import { useNavigation } from '@react-navigation/native';
 import { FIREBASE_AUTH } from '../firebaseConfig';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification} from 'firebase/auth';
 
 const SignUp = () =>{
     const [email, setEmail] = React.useState('');
@@ -44,13 +44,24 @@ const SignUp = () =>{
 
         setIsLoading(true);
         try{
-            const response = await createUserWithEmailAndPassword(auth, email, password);
-            console.log(response);
-            window.alert("Check your email.");
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            
+            await sendEmailVerification(user);
+            alert("A verification has been sent. Please verify your email to continue.");
+
+            const interval = setInterval(async() => {
+                await user.reload();
+                if(user.emailVerified){
+                    clearInterval(interval);
+                    setIsLoading(false)
+                    alert("Email verified successfully!");
+                    navigation.navigate("Home");
+                }
+            }, 3000);
         }catch(error){
-            console.log(error);
-            alert("Sign up failed:" + error.message);
-        }finally{
+           console.log(error);
+            alert("Sign up failed: " + error.message);
             setIsLoading(false);
         }
     }
