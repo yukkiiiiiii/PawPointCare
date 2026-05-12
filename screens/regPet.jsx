@@ -231,7 +231,9 @@ const toggleMedicalHistory = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="light-content" />
+      <StatusBar barStyle="light-content" 
+       backgroundColor="#000000"
+       translucent={true}/>
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
@@ -585,9 +587,13 @@ const toggleMedicalHistory = () => {
         </View>
 
           {/* Register Button */}
-           <TouchableOpacity activeOpacity={0.8} padding={15} onPress={handleRegister} disabled={isLoading}>
+        <View style={{ marginTop: 25, marginBottom: 10 }}>
+           <TouchableOpacity activeOpacity={0.8} 
+                            onPress={handleRegister} 
+                            disabled={isLoading}
+                            style={{ marginTop: 20}}>
             <LinearGradient colors={['#5ECDC5', '#1F395F']}  start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }} style={{ padding: 30, borderRadius: 15, alignItems: 'center', marginTop: '20' }}>
+              end={{ x: 1, y: 0 }} style={{ padding: 30, borderRadius: 15, alignItems: 'center' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center'}}>
                 <MaterialCommunityIcons name="check" size={20} color="white" style={{ marginRight: 6}} />
                 <Text style={{ color: 'white', fontSize: 17, fontWeight: 'bold'}}>
@@ -596,7 +602,7 @@ const toggleMedicalHistory = () => {
               </View>
             </LinearGradient>
            </TouchableOpacity>
-
+        </View>
            {/* Show QR Code after successful registration */}
           {qrValue ? (
             <View style={[styles.card, { marginTop: 20, alignItems: 'center' }]}>

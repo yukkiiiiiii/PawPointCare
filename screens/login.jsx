@@ -7,12 +7,12 @@ import { StyleSheet,
     StatusBar,
     ActivityIndicator,
     KeyboardAvoidingView,
-    Platform} from "react-native";
+    Platform,
+    TextInput} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {LinearGradient} from 'expo-linear-gradient';
 import Logo from '../assets/img/ppcLogo.png';
-import { TextInput } from "react-native-gesture-handler";
 import { useNavigation } from '@react-navigation/native';
 import { FIREBASE_APP } from "../firebaseConfig";
 import { FIREBASE_AUTH } from "../firebaseConfig";
@@ -96,7 +96,8 @@ const Login = () => {
     return (
 
    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" 
+      backgroundColor="#000000"/>
 
 
       <LinearGradient
@@ -109,8 +110,8 @@ const Login = () => {
                 <Text style={styles.Title}>Paw Point Care</Text>
                 <Text style={styles.subtitle}>Your pet's health companion</Text>
 
-                <KeyboardAvoidingView behavior={Platform.OS === 'android' ? 'padding' : 'height'}
-                                      style={{ width: '100%', alignItems: 'center' }}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                                     style={{ flex: 1, width: '100%' }}>
                     {/*EMAIL*/}
                     <Text style={styles.inputLabel}>Email</Text>
                     <TextInput style={styles.textInput} 
@@ -173,7 +174,7 @@ const styles = StyleSheet.create({
     },
 
     centerChild:{
-        flex: 1,
+        flexGrow: 1,
         justifyContent: 'center',
         alignItems: 'center'
     },
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
         width: '85%',
         minHeight: 500,
         margin: 20,
-        borderRadius: 10,
+        borderRadius: 20,
         padding: 20,
         maxHeight: 500,
         backgroundColor: 'white',
@@ -250,13 +251,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#5ECDC5',
         paddingVertical: 12,
         paddingHorizontal: 100,
-        borderRadius: 15,  
+        borderRadius: 20,  
     },
 
     loginText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
+        textAlign: 'center'
     },
 
     signUpReference: {

@@ -5,14 +5,15 @@ import { StyleSheet,
         Image, 
         TouchableOpacity,  
         StatusBar,
-        ActivityIndicator, FlatList} from "react-native";
+        ActivityIndicator, 
+        FlatList,
+        Platform} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {LinearGradient} from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Logo from '../assets/img/ppcLogo.png';
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import { useNavigation } from '@react-navigation/native';
-import {collection, query, where, onSnapshot} from 'firebase/firestore';
+import {collection, query, where, onSnapshot, orderBy, limit} from 'firebase/firestore';
 import {FIREBASE_DB, FIREBASE_AUTH} from '../firebaseConfig';
 
 
@@ -20,13 +21,23 @@ const Home = () =>{
     const navigation = useNavigation();
     const [pets, setPets] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [appointments, setAppointments] = useState([]);
+    const [loadingAppts, setLoadingAppts] = useState(true);
     console.log("NAV:", navigation);
+
+    const activeAppts = appointments.filter(appt => {
+        if (!appt.appointmentDateAndTime || !appt.appointmentDateAndTime.toDate) return false;
+        return appt.appointmentDateAndTime.toDate() >= new Date();
+    });
 
     useEffect(() => {
         const user = FIREBASE_AUTH.currentUser;
         if (!user) return;
 
-        const q = query(collection(FIREBASE_DB, 'pets'), where("adminId", "==", user.uid));
+        const q = query(
+            collection(FIREBASE_DB, 'pets'), 
+            where("adminId", "==", user.uid)
+        );
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const petList = [];
@@ -37,11 +48,45 @@ const Home = () =>{
             setLoading(false);
         });
 
-        return () => unsubscribe();
+        const qAppts = query(
+            collection(FIREBASE_DB, 'bookings'),
+            where("userId", "==", user.uid),
+            where("appointmentDateAndTime", ">=", new Date()), // Filter for future dates
+            orderBy("appointmentDateAndTime", "asc"),
+            limit(3)
+        );
+
+        const unsubAppts = onSnapshot(qAppts, (snapshot) => {
+            const apptList = [];
+            snapshot.forEach((doc) => apptList.push({ id: doc.id, ...doc.data() }));
+            setAppointments(apptList);
+            setLoadingAppts(false);
+        }, (error) => {
+            // --- ADD: This log helps you find the direct link to fix the index error ---
+            console.error("Index or Query Error:", error.message);
+            setLoadingAppts(false);
+        });
+
+        return () => {
+            unsubscribe();
+            unsubAppts();
+        };
     }, []);
+
+    const formatApptDate = (timestamp) => {
+        if (!timestamp || !timestamp.toDate) return "";
+        const date = timestamp.toDate();
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    };
+
+    const formatApptTime = (timestamp) => {
+        if (!timestamp || !timestamp.toDate) return "";
+        const date = timestamp.toDate();
+        return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    };
     return(
         <SafeAreaView style={styles.container}>
-            <StatusBar style="light-content" />
+            <StatusBar style="dark-content"/>
             <ScrollView contentContainerStyle={styles.scrollContent}
                         showsVerticalScrollIndicator={false}> 
                 <View style={styles.bgContainer}>
@@ -85,27 +130,25 @@ const Home = () =>{
 
                 <View style={styles.appointmentContainer}>
                     <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
-                    <View style={styles.aptmntRowCard}>
-                        <View style={styles.apptLeft}>
-                             <Text style={styles.doctorName}>Dr. Sarah Jhonson</Text>
-                             <Text style={styles.apptType}>Checkup - Max</Text>
-                        </View>
-                        <View style={styles.aptRight}>
-                            <Text style={styles.apptDate}>Apr 10</Text>
-                            <Text style={styles.apptTime}>2:00 PM</Text>
-                        </View>
-                    </View>
-
-                    <View style={styles.aptmntRowCard}>
-                        <View style={styles.apptLeft}>
-                             <Text style={styles.doctorName}>Dr. Mike Brillante</Text>
-                             <Text style={styles.apptType}>Vaccination - Luna</Text>
-                        </View>
-                        <View style={styles.aptRight}>
-                            <Text style={styles.apptDate}>Apr 15</Text>
-                            <Text style={styles.apptTime}>10:30 AM</Text>
-                        </View>
-                    </View>
+                    
+                    {loadingAppts ? (
+                        <ActivityIndicator color="#5ECDC5" />
+                    ) : activeAppts.length > 0 ? ( // Changed from appointments to activeAppts
+                        activeAppts.map((appt) => (
+                            <View key={appt.id} style={styles.aptmntRowCard}>
+                                <View style={styles.aptLeft}>
+                                    <Text style={styles.clinicName} >{appt.veterinarian}</Text>
+                                    <Text style={styles.apptType}>{appt.service} - {appt.petName}</Text>
+                                </View>
+                                <View style={styles.aptRight}>
+                                    <Text style={styles.dateText}>{formatApptDate(appt.appointmentDateAndTime)}</Text>
+                                    <Text style={styles.timeText}>{formatApptTime(appt.appointmentDateAndTime)}</Text>
+                                </View>
+                            </View>
+                        ))
+                    ) : (
+                        <Text style={styles.emptyText}>No upcoming appointments.</Text>
+                    )}
                 </View>
 
                 <View style={styles.petContainer}>
@@ -161,13 +204,13 @@ const styles = StyleSheet.create({
     },
 
     bgContainer: {
-        height: '250',
+        height: 250,
         
     },
 
     background: {
         flex: 1,
-        paddingTop: 60,
+        paddingTop: Platform.OS === 'ios' ? 20 : 40,
         paddingBottom: 30, 
         paddingHorizontal: 20,
         borderBottomLeftRadius: 20, 
@@ -190,7 +233,7 @@ const styles = StyleSheet.create({
     },
 
     quickActionContainer:{
-        marginTop: -120,
+        marginTop: -60,
         padding: 20,
         backgroundColor: '#fff',
         margin: 20,
@@ -198,11 +241,12 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         
         // shadow ng box yang baba
-        elevation: 3,
+        elevation: 5,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
+        zIndex: 10
     },
 
     sectionTitle: {
@@ -269,7 +313,7 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end', 
     },
 
-    doctorName: {
+    clinicName: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#1F395F',

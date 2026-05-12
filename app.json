@@ -3,26 +3,32 @@
     "scheme": "pawpointcare",
     "name": "Paw_PointCare",
     "slug": "Paw_PointCare",
-    "version": "1.0.0",
+    "version": "1.0.6",
     "orientation": "portrait",
     "icon": "./assets/img/ppcLogo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": false,
     "splash": {
-      "image": "./assets/img/ppcLogo2.png",
+      "image": "./assets/img/ppcLogo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#5ECDC5"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/img/ppcLogo.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.yukkiosk.Paw_PointCare"
+      "softwareKeyboardLayoutMode": "resize",
+      "package": "com.yukkiosk.Paw_PointCare",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDoWPohkhWo1iBby0-qJi8rBkDyYAgTaJg" 
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"

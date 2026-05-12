@@ -7,12 +7,12 @@ import { StyleSheet,
         StatusBar,
         ActivityIndicator,
         Platform,
-        KeyboardAvoidingView} from "react-native";
+        KeyboardAvoidingView,
+        TextInput} from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {LinearGradient} from 'expo-linear-gradient';
 import Logo from '../assets/img/ppcLogo.png';
-import { TextInput } from "react-native-gesture-handler";
 import { useNavigation } from '@react-navigation/native';
 import { FIREBASE_AUTH } from '../firebaseConfig';
 import { createUserWithEmailAndPassword, sendEmailVerification} from 'firebase/auth';
@@ -68,7 +68,8 @@ const SignUp = () =>{
 
     return(
          <SafeAreaView style={styles.container}>
-              <StatusBar barStyle="light-content" />
+              <StatusBar barStyle="light-content" 
+               backgroundColor="#000000"/>
               <LinearGradient
                 colors={['#5ECDC5', '#3e5974']}
                 style={styles.background}
@@ -79,8 +80,8 @@ const SignUp = () =>{
                         <Text style={styles.Title}>Paw Point Care</Text>
                         <Text style={styles.subtitle}>Your pet's health companion</Text>
 
-                    <KeyboardAvoidingView behavior={Platform.OS === 'android' ? 'padding' : 'height'}
-                                      style={{ width: '100%', alignItems: 'center' }}>
+                    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                                      style={{ flex: 1, width: '100%' }}>
                         {/* EMAIL */}
                         <Text style={styles.inputLabel}>Email</Text>
                         <TextInput style={styles.textInput} 
@@ -151,11 +152,11 @@ const styles = StyleSheet.create({
     signUpBox: 
     {
         width: '85%',
-        minHeight: 595,
+        minHeight: 500,
         margin: 20,
-        borderRadius: 10,
+        borderRadius: 20,
         padding: 20,
-        maxHeight: 500,
+        maxHeight: 595,
         backgroundColor: 'white',
         alignItems: 'center',
         position: 'relative',
@@ -219,13 +220,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#5ECDC5',
         paddingVertical: 12,
         paddingHorizontal: 100,
-        borderRadius: 15,  
+        borderRadius: 20,  
     },
 
     signUpText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
+        textAlign: 'center'
     },
 
     logInReference: {

@@ -33,6 +33,7 @@ export default function PetQrProf() {
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const qrRef = useRef();
     
+    
     const editProfilePic = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') return alert('Permission needed!');
@@ -163,7 +164,8 @@ export default function PetQrProf() {
   return (
     <SafeAreaView style={styles.container}>
     <ScrollView>
-      <StatusBar style="light-content" />
+      <StatusBar style="light-content" 
+       backgroundColor="#000000"/>
       <LinearGradient colors={['#3DB2A4', '#3e5974']} style={styles.header}>
         <Text style={styles.headerTitle}>Pet QR Passports</Text>
         <Text style={styles.headerSubtitle}>
