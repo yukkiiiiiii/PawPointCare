@@ -164,8 +164,8 @@ export default function PetQrProf() {
   return (
     <SafeAreaView style={styles.container}>
     <ScrollView>
-      <StatusBar style="light-content" 
-       backgroundColor="#000000"/>
+      <StatusBar style="dark-content" 
+       />
       <LinearGradient colors={['#3DB2A4', '#3e5974']} style={styles.header}>
         <Text style={styles.headerTitle}>Pet QR Passports</Text>
         <Text style={styles.headerSubtitle}>

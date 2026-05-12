@@ -14,6 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { FIREBASE_AUTH, FIREBASE_DB } from "../firebaseConfig";
 import { collection, addDoc, serverTimestamp, query, where, getDocs } from "firebase/firestore";
 import emailjs from '@emailjs/react-native';
+import { StatusBar } from 'expo-status-bar';
 
 const generateDates = () => {
   const dateArray = [];
@@ -170,6 +171,7 @@ const Book = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle='dark-content'/>
       <LinearGradient colors={['#5ECDC5', '#3e5974']} style={styles.header} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
         <Text style={styles.headerTitle}>Book Appointment</Text>
         <Text style={styles.headerSubtitle}>Schedule a visit for your pet</Text>

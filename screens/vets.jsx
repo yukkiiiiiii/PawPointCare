@@ -11,6 +11,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import MapView, { Marker, UrlTile } from './MapViewWrapper';
+import { StatusBar } from 'expo-status-bar';
 
 const PAWPOINT_HOME = {
   latitude: 14.448639,
@@ -131,6 +132,7 @@ const Vets = () => {
     };
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle='dark-content'/>
       <LinearGradient 
         colors={['#5ECDC5', '#3e5974']} 
         style={styles.header}

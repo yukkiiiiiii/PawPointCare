@@ -231,9 +231,7 @@ const toggleMedicalHistory = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" 
-       backgroundColor="#000000"
-       translucent={true}/>
+      <StatusBar barStyle="dark-content" />
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>

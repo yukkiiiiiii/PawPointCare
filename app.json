@@ -3,13 +3,13 @@
     "scheme": "pawpointcare",
     "name": "Paw_PointCare",
     "slug": "Paw_PointCare",
-    "version": "1.0.6",
+    "version": "1.0.9",
     "orientation": "portrait",
     "icon": "./assets/img/ppcLogo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": false,
     "splash": {
-      "image": "./assets/img/ppcLogo.png",
+      "image": "./assets/img/ppcLogoOnly.png",
       "resizeMode": "contain",
       "backgroundColor": "#5ECDC5"
     },
@@ -18,7 +18,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/img/ppcLogo.png",
+        "foregroundImage": "./assets/img/ppcLogoOnly.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,

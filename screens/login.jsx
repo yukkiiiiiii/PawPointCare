@@ -96,8 +96,8 @@ const Login = () => {
     return (
 
    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" 
-      backgroundColor="#000000"/>
+      <StatusBar barStyle="dark-content" 
+     />
 
 
       <LinearGradient

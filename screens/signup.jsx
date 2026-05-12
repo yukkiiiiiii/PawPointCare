@@ -68,8 +68,8 @@ const SignUp = () =>{
 
     return(
          <SafeAreaView style={styles.container}>
-              <StatusBar barStyle="light-content" 
-               backgroundColor="#000000"/>
+              <StatusBar barStyle="dark-content" 
+               />
               <LinearGradient
                 colors={['#5ECDC5', '#3e5974']}
                 style={styles.background}
